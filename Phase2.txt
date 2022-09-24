@@ -1,0 +1,115 @@
+1.What books are required for each course (sort by course number)?
+
+Select C.CourseNum, B.Title
+From Course C join Book B on C.CourseNum = B.CourseNum
+Order By C.CourseNum;
+
+2.What are the ISBN and titles of all the unsold (available) books?
+
+Select BC.ISBN, B.Title
+From Book B join Book_Copy BC on B.ISBN = BC.ISBN
+join Sold_Book SB on BC.ISBN = SB.ISBN
+and BC.BookType = 'Listed'; (Assume that Listed books are unsold books, and all th esold. retrieved, and unretrieved books are not in Listed books)
+
+3.Which students have picked up their books?
+
+Select S.SID, Concat(S.FNAME," ",S.LNAME) as 'Student Name'
+from Student S join Seller Se on S.SID = Se.SSID
+join Book_Copy BC on Se.SSID = BC.SSID
+join Retrieved_Book RB on BC.SSID = RB.SRBID;
+
+
+4.List the books in BPUB’s current inventory and how many of each book they have in stock.
+
+Select B.ISBN, B.Title, count(BC.ISBN) 
+from Book B Join Book_copy BC on BC.ISBN = B.ISBN 
+and BC.BookType = 'Listed'
+Group By B.ISBN, B.Title;
+
+
+5. Which sellers received checks with check numbers between 150 and 156?
+
+Select S.SID,  Concat(S.Fname," ",S.Lname) as 'Student Name', P.CheckNum 
+from Seller Se join Student S on Se.SSID = S.SID
+join Payment P on S.SSID= P.SSID 
+and (P.CheckNum Between 150 and 156);
+
+6. Which students have books in need of retrieval?
+
+Select S.SID, Concat(S.Fname," ",S.Lname) as 'Student Name'
+from Student S join Seller Se on S.SID = Se.SSID
+join Book_Copy BC on Se.SSID = BC.SSID
+join Unretrived_Book UB on BC.SSID = UB.SUID 
+and DID IS NULL;
+
+7. What is the least expensive copy of “C++ How to Program”?
+
+Select BC.SSID, BC.ISBN
+from Book_Copy BC join Book B on BC.ISBN = B.ISBN
+and B.title = 'C++ How to Program'
+and BC.AskingPrice = (Select min(AskingPrice)
+                      from Book_Copy BC Join Book B on BC.ISBN = B.ISBN
+                      and B.title = 'C++ How to Program');
+
+8. List the average cost of the book copies for each book.
+
+Select BC.ISBN, B.Title, AVG(BC.AskingPrice) as 'Average Price' 
+from Book_Copy BC join Book B on BC.ISBN = B.ISBN 
+Group By BC.ISBN, B.Title;
+
+9. Which students have not sold any books?
+
+Select S.SID, Concat(S.Fname," ",S.Lname) as 'Student Name' 
+from Student S join Seller Se on S.SID = Se.SSID
+join Book_Copy BC on Se.SSID = BC.SSID
+where S.SID NOT IN (Select distinct(SSBID) 
+                    from Sold_Book);
+
+10. Which students have purchased a copy of “Marketing Strategy ‐ A Primer” from us?
+
+Select St.SID, Concat(St.Fname," ",St.Lname) as 'Student Name' 
+from Student St Join Sale S on St.SID = S.BSID
+Join Sold_Book SB on S.SaleNum = SB.SaleNum
+Join Book_Copy BC on S.ISBN = BC.ISBN 
+Join Book B on BC.ISBN = B.ISBN
+and B.Title = 'Marketing Strategy ‐ A Primer';
+
+11. List the books required for the “Industrial Relations” course, along with the number of available copies for each book.
+
+Select BC.ISBN, B.Title, B.Edition, COUNT(BC.ISBN) 'Stock Available'
+from Course C join Book B on C.CourseNum = B.CourseNum
+left outer join Book_Copy BC on BC.ISBN = B.ISBN
+and C.CourseTitle = 'Industrial Rwlations'
+Group By (BC.ISBN);
+
+12. How many different students have tried to sell a copy of “Inside Outsourcing”?
+
+Select Count(Distinct(S.SSID)) 
+from Book_Copy BC Join Book B on BC.ISBN = B.ISBN
+join Student Son BC.SSID = S.SID
+and B.Title = 'Inside Outsourcing';
+
+13. How much money have we made by selling books to distributors?
+
+Select SUM(SellingPrice) as 'Total Money' 
+from Unretrived_book
+where DID IS NOT NULL;
+
+14. How many different book copies have been retrieved by sellers?
+
+Select count(distinct(ISBN)) 
+from Retrived_Book;
+
+15. List the first and last name of students who have both purchased a book from us and received payment from us for a sold book.
+
+Select S.Fname, S.Lname 
+from Student S Join Payment P on S.SSID = P.SSID 
+join Sale Se on S.BSID = Se.BSID
+and S.isBuyer = 1;
+
+
+
+
+
+
+
